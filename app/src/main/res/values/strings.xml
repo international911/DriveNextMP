@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DriveNext</string>
+    <string name="tagline">Поможем найти твою следующую поездку</string>
+    <string name="offline_title">Нет подключения\nк интернету</string>
+    <string name="offline_message">Проверьте подключение и повторите попытку</string>
+    <string name="retry">Повторить попытку</string>
+    <string name="skip">Пропустить</string>
+    <string name="next">Далее</string>
+    <string name="lets_go">Поехали</string>
+    <string name="rent_title">Аренда автомобилей</string>
+    <string name="rent_description">Открой для себя удобный и доступный способ передвижения</string>
+    <string name="safe_title">Безопасно и удобно</string>
+    <string name="safe_description">Арендуй автомобиль и наслаждайся его удобством</string>
+    <string name="offers_title">Лучшие предложения</string>
+    <string name="offers_description">Выбирай понравившееся среди сотен доступных автомобилей</string>
+    <string name="entry_title">Вход и регистрация</string>
+    <string name="entry_description">Добро пожаловать в DriveNext</string>
+    <string name="offline_art_description">Разъединённые штекеры</string>
+    <string name="splash_art_description">Аренда автомобиля</string>
+    <string name="rent_art_description">Аренда автомобиля через приложение</string>
+    <string name="safe_art_description">Удобное бронирование автомобиля</string>
+    <string name="offers_art_description">Выбор автомобиля</string>
+</resources>

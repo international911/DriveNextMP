@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        maven { url = uri("local-maven") }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven { url = uri("local-maven") }
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "DriveNextLab1"
+include(":app")
