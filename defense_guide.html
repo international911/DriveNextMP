@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>DriveNext — подготовка к защите лабораторной работы № 1</title>
+<style>
+  @page { size: A4; margin: 16mm 17mm 17mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #20202a; font: 10.5pt/1.48 Arial, sans-serif; }
+  h1, h2, h3 { color: #261543; break-after: avoid; }
+  h1 { font-size: 25pt; line-height: 1.15; margin: 0 0 10mm; }
+  h2 { font-size: 15pt; border-bottom: 1px solid #d7d0e3; padding-bottom: 2mm; margin: 10mm 0 4mm; }
+  h3 { font-size: 11.5pt; margin: 6mm 0 2mm; }
+  p { margin: 0 0 3mm; }
+  ul, ol { margin: 1mm 0 4mm; padding-left: 6mm; }
+  li { margin: 0 0 2mm; }
+  strong { color: #261543; }
+  code { font: 9.5pt Consolas, 'Courier New', monospace; background: #f4f1f8; padding: 0.15em 0.3em; border-radius: 2px; overflow-wrap: anywhere; }
+  pre { padding: 3mm 4mm; background: #f4f1f8; white-space: pre-wrap; border-left: 3px solid #6c4a91; font: 9pt/1.4 Consolas, 'Courier New', monospace; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 5mm; font-size: 9.6pt; }
+  th, td { border: 1px solid #ded9e6; padding: 2mm 2.5mm; vertical-align: top; }
+  th { background: #f2edf8; text-align: left; color: #261543; }
+  .cover { min-height: 250mm; display: flex; flex-direction: column; justify-content: center; }
+  .kicker { color: #765d91; text-transform: uppercase; letter-spacing: 1.4px; font-weight: bold; margin-bottom: 5mm; }
+  .subtitle { font-size: 14pt; color: #59566a; margin-bottom: 10mm; }
+  .rule { height: 3px; width: 64mm; background: #261543; margin: 0 0 9mm; }
+  .muted { color: #666; }
+  .callout { background: #f6f3fa; border-left: 4px solid #261543; padding: 3mm 4mm; margin: 4mm 0; break-inside: avoid; }
+  .function { border-left: 2px solid #d8cde6; padding-left: 3mm; margin: 3mm 0 4mm; break-inside: avoid; }
+  .function > p:first-child { font-weight: bold; color: #261543; margin-bottom: 1mm; }
+  .page-break { break-before: page; }
+  .small { font-size: 9pt; }
+  .flow { font-weight: bold; background: #f6f3fa; padding: 4mm; text-align: center; break-inside: avoid; }
+  .shots { display: flex; align-items: flex-start; gap: 5mm; margin-top: 3mm; }
+  .shots img { object-fit: contain; border: 1px solid #ddd; }
+  .shots .portrait { height: 88mm; }
+  .shots .landscape { width: 100mm; }
+  .question { break-inside: avoid; margin-bottom: 5mm; }
+  .question p:first-child { font-weight: bold; color: #261543; margin-bottom: 1mm; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="kicker">Разработка мобильных приложений</div>
+  <h1>DriveNext<br>Лабораторная работа № 1</h1>
+  <div class="rule"></div>
+  <p class="subtitle">Конспект для защиты: файлы, функции, сценарии работы и ответы на контрольные вопросы</p>
+  <p>Проект: нативное Android-приложение на Kotlin.<br>Основа задания: страницы 51–59 методических указаний.</p>
+  <p class="muted">3 ноября 2026 года</p>
+</section>
+
+<h2 class="page-break">1. Что сделано и как устроен проект</h2>
+<p>Лабораторная № 1 охватывает старт приложения: загрузку, отсутствие интернета и приветствие пользователя. В проекте есть одна <code>MainActivity</code>. Она меняет разметку в зависимости от состояния <code>Screen</code>. Три слайда приветствия показаны через <code>ViewPager2</code>; каждый слайд — <code>Fragment</code>.</p>
+<div class="flow">Запуск → загрузка 2,5 с → проверка сети → приветствие или экран входа<br>Нет сети → экран ошибки → восстановление → прерванный экран</div>
+<p>При первом запуске после загрузки открывается приветствие. После кнопки «Пропустить» или «Поехали» сохраняется флаг завершения, и следующий запуск ведёт к экрану входа. Сам вход — только точка перехода: авторизация и Supabase входят в следующие работы.</p>
+
+<h3>Слои и данные</h3>
+<table>
+<tr><th>Часть</th><th>Файлы</th><th>Роль</th></tr>
+<tr><td>Представление</td><td>MainActivity, OnboardingPageFragment, OnboardingAdapter, XML-разметка</td><td>Показывает экраны и передаёт действия пользователя.</td></tr>
+<tr><td>Состояние интерфейса</td><td>StartupViewModel</td><td>Выбирает следующий экран, помнит текущий слайд и прерванный сценарий.</td></tr>
+<tr><td>Локальные данные</td><td>OnboardingRepository</td><td>Читает и сохраняет флаг прохождения приветствия.</td></tr>
+<tr><td>Состояние сети</td><td>NetworkChecker и ConnectivityManager</td><td>Проверяет активную сеть и подтверждённый доступ в интернет.</td></tr>
+</table>
+<div class="callout"><strong>Короткий ответ для преподавателя.</strong> «Я разделил отображение, состояние переходов и сохранение данных. Activity рисует экран, ViewModel принимает решение о переходе, а Repository хранит флаг онбординга. Интернет проверяется системным ConnectivityManager».</div>
+
+<h2>2. Главный файл: MainActivity.kt</h2>
+<p><code>MainActivity</code> наследуется от <code>FragmentActivity</code>, потому что страницы <code>ViewPager2</code> реализованы как Fragment. Это стартовая Activity, объявленная в манифесте.</p>
+
+<h3>Поля класса</h3>
+<ul>
+  <li><code>model</code> — экземпляр <code>StartupViewModel</code>, источник текущего состояния экрана.</li>
+  <li><code>connectivityManager</code> — системный сервис, присылающий события о сети.</li>
+  <li><code>handler</code> — выполняет отложенную задачу в основном потоке интерфейса.</li>
+  <li><code>displayedScreen</code> — запоминает уже нарисованный экран, чтобы <code>render()</code> не пересоздавал его без необходимости.</li>
+  <li><code>networkCallback</code> — ссылка на подписку на изменения сети; нужна для корректной отмены подписки.</li>
+  <li><code>splashTask</code> — задача, которая по истечении времени проверяет интернет, завершает загрузку в ViewModel и обновляет экран.</li>
+</ul>
+
+<div class="function"><p>onCreate(savedInstanceState)</p><p>Вызывает <code>installSplashScreen()</code> до <code>super.onCreate()</code>, создаёт ViewModel через Factory, получает <code>ConnectivityManager</code>, рисует текущий экран. Если ещё идёт загрузка, планирует <code>splashTask</code> на оставшееся время. Время берётся из ViewModel, поэтому поворот устройства не начинает отсчёт заново.</p></div>
+<div class="function"><p>onStart()</p><p>Регистрирует <code>NetworkCallback</code>. Его методы <code>onLost</code>, <code>onAvailable</code> и <code>onCapabilitiesChanged</code> вызывают <code>refreshNetwork()</code>. Затем сразу выполняется текущая проверка сети: приложению не нужно ждать следующего события системы.</p></div>
+<div class="function"><p>onStop()</p><p>Отменяет регистрацию callback. Это предотвращает ненужную работу и удержание Activity после ухода приложения с экрана.</p></div>
+<div class="function"><p>onDestroy()</p><p>Удаляет запланированную <code>splashTask</code> из очереди Handler. Старая Activity не должна обновлять интерфейс после уничтожения, например при повороте.</p></div>
+<div class="function"><p>refreshNetwork()</p><p>Переходит в UI-поток через <code>runOnUiThread</code>, вызывает <code>NetworkChecker.hasInternet()</code>, передаёт результат в ViewModel и вызывает <code>render()</code>. Сетевой callback может прийти не из главного потока, а изменять View разрешено только в главном.</p></div>
+<div class="function"><p>render()</p><p>Сравнивает <code>displayedScreen</code> и <code>model.screen</code>. Если экран уже показан, ничего не пересоздаёт. Иначе выбирает XML-разметку по <code>Screen</code>: загрузка, отсутствие сети, приветствие или вход. На экране ошибки сразу назначает обработчик кнопке «Повторить попытку».</p></div>
+<div class="function"><p>showOnboarding()</p><p>Создаёт экран приветствия: ставит <code>OnboardingAdapter</code> в ViewPager2, восстанавливает номер слайда из ViewModel, подключает кнопки и обработчик смены страницы. «Далее» листает вперёд, на последнем слайде вызывает <code>completeOnboarding()</code>; «Пропустить» вызывает его сразу.</p></div>
+<div class="function"><p>updatePage(position), локальная функция внутри showOnboarding()</p><p>Запоминает выбранный слайд, меняет подпись кнопки «Далее» на «Поехали» на третьем слайде и заново строит три индикатора. Активный индикатор шире и окрашен в фиолетовый цвет.</p></div>
+<div class="function"><p>completeOnboarding()</p><p>Сообщает ViewModel о завершении приветствия и вызывает <code>render()</code>. Сохранение флага выполняет Repository через ViewModel, а Activity занимается только интерфейсом.</p></div>
+<div class="function"><p>dp(value)</p><p>Переводит размер из dp в пиксели текущего экрана. Это нужно для индикаторов, созданных в коде, чтобы их физический размер был сопоставим на устройствах с разной плотностью пикселей.</p></div>
+
+<h2>3. Логика переходов: StartupViewModel.kt</h2>
+<p><code>ViewModel</code> переживает поворот Activity. Поэтому в ней находятся экран, номер текущего слайда и промежуточное состояние переходов. <code>Screen</code> — перечисление из четырёх значений: <code>SPLASH</code>, <code>OFFLINE</code>, <code>ONBOARDING</code>, <code>ENTRY</code>.</p>
+
+<h3>Состояние ViewModel</h3>
+<ul>
+  <li><code>screen</code> — какой экран показывать сейчас. Изменить его извне нельзя: у свойства <code>private set</code>.</li>
+  <li><code>onboardingPage</code> — номер текущего слайда, от 0 до 2.</li>
+  <li><code>onboardingFinished</code> — флаг из Repository. Он показывает, видел ли пользователь приветствие.</li>
+  <li><code>splashStartedAt</code> — момент старта по монотонным часам <code>SystemClock.elapsedRealtime()</code>. Они не зависят от изменения системного времени.</li>
+  <li><code>interruptedScreen</code> — экран, который был открыт до исчезновения интернета. Нужен для правильного возврата.</li>
+</ul>
+
+<div class="function"><p>remainingSplashMillis()</p><p>Вычисляет остаток от 2500 мс и ограничивает его снизу нулём через <code>coerceAtLeast(0L)</code>. Так экран загрузки не начинает отсчёт заново после поворота и не получает отрицательную задержку.</p></div>
+<div class="function"><p>finishSplash(hasInternet)</p><p>Работает только если текущее состояние — <code>SPLASH</code>. Выбирает целевой экран: приветствие при первом запуске, иначе вход. Если сети нет, показывает <code>OFFLINE</code> и запоминает выбранную цель для возврата.</p></div>
+<div class="function"><p>onNetworkChanged(hasInternet)</p><p>Во время загрузки ничего не меняет. Если интернет пропал, запоминает текущий экран и переключает на <code>OFFLINE</code>. Если интернет появился, возвращает прерванный экран; если он неизвестен, выбирает приветствие или вход по сохранённому флагу.</p></div>
+<div class="function"><p>completeOnboarding()</p><p>Вызывает <code>onboardingRepository.markFinished()</code>, обновляет флаг в памяти, переходит на <code>ENTRY</code> и очищает прежнее прерванное состояние. Одинаково используется кнопками «Пропустить» и «Поехали».</p></div>
+<div class="function"><p>Factory.create(modelClass)</p><p>Создаёт ViewModel с зависимостью <code>OnboardingRepository</code>. Обычный конструктор ViewModel без параметров не смог бы получить Repository. Проверка <code>require</code> не даёт случайно создать через эту фабрику другой тип ViewModel.</p></div>
+
+<h2>4. Доступ к данным и сети</h2>
+<h3>OnboardingRepository.kt</h3>
+<p>Класс работает с <code>SharedPreferences</code> с именем <code>drive_next</code>. Используется <code>applicationContext</code>, чтобы Repository не удерживал ссылку на конкретную Activity.</p>
+<div class="function"><p>isFinished()</p><p>Читает ключ <code>onboarding_finished</code>. Если ключа ещё нет, возвращает <code>false</code>; значит, после новой установки будет показано приветствие.</p></div>
+<div class="function"><p>markFinished()</p><p>Записывает <code>true</code> по тому же ключу. <code>apply()</code> применяет изменение в памяти сразу, а запись на диск выполняет без блокировки интерфейса.</p></div>
+
+<h3>NetworkChecker.kt</h3>
+<div class="function"><p>hasInternet(context)</p><p>Получает системный <code>ConnectivityManager</code>, затем активную сеть и её <code>NetworkCapabilities</code>. Если сети или характеристик нет, возвращает <code>false</code>. Требует сразу две возможности: <code>NET_CAPABILITY_INTERNET</code> означает, что сеть заявляет доступ в интернет; <code>NET_CAPABILITY_VALIDATED</code> означает, что Android подтвердил этот доступ. Это точнее, чем проверка только включённого Wi-Fi.</p></div>
+<div class="callout"><strong>Различие двух видов памяти.</strong> ViewModel сохраняет текущий слайд при повороте экрана; SharedPreferences сохраняет факт прохождения приветствия после закрытия приложения и следующего запуска.</div>
+
+<h2 class="page-break">5. Страницы приветствия</h2>
+<h3>OnboardingAdapter.kt</h3>
+<p>Это наследник <code>FragmentStateAdapter</code>, который связывает ViewPager2 с фрагментами.</p>
+<div class="function"><p>getItemCount()</p><p>Возвращает 3 — количество слайдов. ViewPager2 использует это число для границ перелистывания.</p></div>
+<div class="function"><p>createFragment(position)</p><p>Создаёт фрагмент для заданного индекса через <code>OnboardingPageFragment.create(position)</code>. ViewPager2 может пересоздать страницу по мере необходимости.</p></div>
+
+<h3>OnboardingPageFragment.kt</h3>
+<div class="function"><p>onCreateView(inflater, container, state)</p><p>Создаёт View фрагмента из <code>page_onboarding.xml</code>. Этот XML общий для всех трёх слайдов.</p></div>
+<div class="function"><p>onViewCreated(view, state)</p><p>Берёт номер страницы из <code>arguments</code>, ограничивает его диапазоном 0…2 через <code>coerceIn</code>, находит ImageView и два TextView. Затем подставляет соответствующие изображение, заголовок, описание и текст для доступности изображения.</p></div>
+<div class="function"><p>create(page)</p><p>Фабричный метод создаёт Fragment и кладёт номер страницы в <code>Bundle</code>. Аргументы Bundle нужны, чтобы Android мог восстановить страницу после пересоздания фрагмента.</p></div>
+<p>Массивы <code>IMAGES</code>, <code>TITLES</code>, <code>DESCRIPTIONS</code> и <code>IMAGE_DESCRIPTIONS</code> хранят идентификаторы ресурсов по одному индексу на каждый слайд. Тексты находятся в <code>strings.xml</code>, а не зашиты в Kotlin.</p>
+
+<h2>6. Манифест, темы и разметка</h2>
+<h3>AndroidManifest.xml</h3>
+<ul>
+  <li><code>INTERNET</code> разрешает сетевые запросы; <code>ACCESS_NETWORK_STATE</code> разрешает получать состояние сети.</li>
+  <li><code>android:exported="true"</code> делает стартовую Activity доступной для запуска системой.</li>
+  <li>Пара <code>MAIN</code> + <code>LAUNCHER</code> определяет точку входа из списка приложений.</li>
+  <li>Стартовой Activity назначена тема <code>Theme.DriveNext.Splash</code>.</li>
+  <li><code>allowBackup="false"</code> не даёт автоматически восстановить старый флаг приветствия после переустановки.</li>
+</ul>
+
+<h3>styles.xml и ресурсы</h3>
+<p><code>Theme.DriveNext.Splash</code> наследуется от <code>Theme.SplashScreen</code>, задаёт белый фон, векторную иконку <code>splash_icon.xml</code> и тему после заставки. <code>Theme.DriveNext</code> задаёт обычный вид Activity без ActionBar, цвета статус-бара и навигации. <code>colors.xml</code> хранит палитру, <code>strings.xml</code> — видимые строки и описания изображений.</p>
+
+<table>
+<tr><th>Файл разметки</th><th>Что в нём находится</th></tr>
+<tr><td><code>screen_splash.xml</code></td><td>Название и слоган вверху; иллюстрация по центру. Это фирменный экран после короткой системной заставки.</td></tr>
+<tr><td><code>screen_offline.xml</code></td><td>Иконка, два текста и кнопка «Повторить попытку». ScrollView позволяет уместить содержимое на небольшом экране.</td></tr>
+<tr><td><code>screen_onboarding.xml</code></td><td>«Пропустить» сверху, ViewPager2 в гибкой центральной области, индикаторы и основная кнопка снизу.</td></tr>
+<tr><td><code>page_onboarding.xml</code></td><td>Общая структура каждого слайда: изображение, заголовок, описание.</td></tr>
+<tr><td><code>screen_entry.xml</code></td><td>Конечный экран первой работы — точка перехода к будущему входу и регистрации.</td></tr>
+</table>
+<p><code>button_background.xml</code> описывает фиолетовую кнопку со скруглением; <code>indicator_active.xml</code> и <code>indicator_inactive.xml</code> — две формы индикатора. Файлы <code>drawable-nodpi/*.png</code> содержат иллюстрации из макетов методички. Они выделены отдельно от текста и элементов управления, поэтому интерфейс остаётся адаптивным.</p>
+
+<h3>Файлы сборки</h3>
+<p><code>settings.gradle.kts</code> задаёт имя проекта, модуль <code>app</code> и репозитории зависимостей. Корневой <code>build.gradle.kts</code> фиксирует версию Android Gradle Plugin. <code>app/build.gradle.kts</code> задаёт пакет, SDK, версии приложения и зависимости SplashScreen, Fragment, ViewPager2 и ViewModel. <code>gradle.properties</code> содержит настройки Gradle и AndroidX, а <code>gradlew.bat</code> запускает выбранную версию Gradle.</p>
+<p>В проекте <code>minSdk = 31</code> (Android 12), <code>targetSdk = 34</code>, <code>compileSdk = 37</code>. <code>R.layout.*</code>, <code>R.id.*</code>, <code>R.string.*</code> и <code>R.drawable.*</code> — сгенерированные Android ссылки на ресурсы.</p>
+
+<h2 class="page-break">7. Как показать работу на защите</h2>
+<ol>
+  <li>Очистить данные приложения. При запуске показать заставку, затем первый слайд.</li>
+  <li>Нажать «Далее» два раза: заголовки сменяются, на третьем слайде кнопка становится «Поехали».</li>
+  <li>Нажать «Поехали», закрыть и вновь открыть приложение: приветствие больше не показывается.</li>
+  <li>Очистить данные и повторить с кнопкой «Пропустить» — результат тот же.</li>
+  <li>Выключить Wi-Fi и мобильные данные: откроется экран без интернета. Нажать «Повторить попытку»: без сети экран остаётся. Включить Wi-Fi: приложение продолжит работу.</li>
+  <li>На втором слайде повернуть устройство: останется второй слайд. То же проверено при краткой потере сети.</li>
+</ol>
+<p>Проверено на эмуляторе Android API 37: сборка APK, три слайда, обе кнопки завершения, повторный запуск, потеря и восстановление сети, возврат на второй слайд, портретная и горизонтальная ориентации. Android Lint офлайн не выполнился: требуемого пакета не было в локальном кэше. Это не следует выдавать за пройденную проверку.</p>
+<div class="shots"><img class="portrait" src="screenshots/onboarding-portrait.png" alt="Онбординг вертикально"><img class="landscape" src="screenshots/onboarding-landscape.png" alt="Онбординг горизонтально"></div>
+
+<h2>8. Ответы на контрольные вопросы</h2>
+<div class="question"><p>1. Как создать переменную в Kotlin?</p><p><code>val name = "DriveNext"</code> объявляет ссылку, которую нельзя переназначить; <code>var page = 1</code> объявляет изменяемую переменную. Тип может быть выведен автоматически или указан явно: <code>val page: Int = 1</code>. Неизменяемость <code>val</code> относится к ссылке, а не обязательно ко всем внутренним данным объекта.</p></div>
+<div class="question"><p>2. Что такое Activity?</p><p>Компонент Android, представляющий экран и участвующий в его жизненном цикле. Система вызывает методы вроде <code>onCreate</code>, <code>onStart</code>, <code>onStop</code> и <code>onDestroy</code>. В проекте стартовая Activity — <code>MainActivity</code>.</p></div>
+<div class="question"><p>3. Для чего нужен Intent?</p><p>Для описания действия или перехода: можно открыть другую Activity, передать данные или попросить систему открыть ссылку. Intent бывает явным, с конкретным классом назначения, и неявным, с действием для подходящего приложения. В этой лабораторной отдельный Intent для переходов не нужен: экраны переключаются внутри одной Activity.</p></div>
+<div class="question"><p>4. Какова цель SplashScreen?</p><p>Показать оформленный старт приложения до готовности основного интерфейса. Он скрывает краткую инициализацию, предотвращает пустой экран и делает запуск визуально последовательным. В проекте системная заставка сменяется фирменным экраном загрузки.</p></div>
+<div class="question"><p>5. Где и как указывается тема SplashScreen?</p><p>Тема объявляется в <code>res/values/styles.xml</code> с родителем <code>Theme.SplashScreen</code>; в ней задаются фон, иконка и <code>postSplashScreenTheme</code>. В <code>AndroidManifest.xml</code> эта тема назначается стартовой Activity через <code>android:theme</code>.</p></div>
+<div class="question"><p>6. Когда инициализировать SplashScreen?</p><p>В <code>onCreate()</code> стартовой Activity до <code>super.onCreate()</code> и создания интерфейса. Тогда системная заставка участвует в запуске с первого кадра. В коде это вызов <code>installSplashScreen()</code>.</p></div>
+<div class="question"><p>7. Где объявляются uses-permission и что будет без разрешения?</p><p>Теги <code>&lt;uses-permission&gt;</code> размещаются внутри корневого <code>&lt;manifest&gt;</code> в <code>AndroidManifest.xml</code>. Без нужного разрешения соответствующая операция недоступна приложению: например, сетевой запрос или чтение состояния сети может завершиться ошибкой.</p></div>
+<div class="question"><p>8. Разница между INTERNET и ACCESS_NETWORK_STATE?</p><p><code>INTERNET</code> нужен для выполнения сетевых запросов. <code>ACCESS_NETWORK_STATE</code> нужен для чтения сведений о подключении через <code>ConnectivityManager</code>. Наличие сети само по себе не доказывает, что интернет работает; поэтому проект дополнительно проверяет <code>NET_CAPABILITY_VALIDATED</code>.</p></div>
+<div class="question"><p>9. Что такое AndroidManifest.xml?</p><p>Основной файл объявления приложения для Android. В нём указаны компоненты, точка запуска, разрешения, тема и другие параметры, которые система должна знать ещё до выполнения кода.</p></div>
+<div class="question"><p>10. Что такое Fragment и чем он отличается от Activity?</p><p>Fragment — повторно используемая часть интерфейса со своим жизненным циклом, которая размещается внутри Activity. Activity является самостоятельным компонентом и может быть точкой запуска. В проекте Activity одна, а три слайда представлены отдельными Fragment.</p></div>
+
+<h2>9. Что важно не перепутать при ответе</h2>
+<ul>
+  <li><strong>Системная заставка и фирменный экран загрузки</strong> — два последовательных этапа. Первая создаётся темой, второй — <code>screen_splash.xml</code>.</li>
+  <li><strong>ViewModel и SharedPreferences</strong> решают разные задачи: состояние при повороте и постоянный флаг после перезапуска.</li>
+  <li><strong>«Сеть подключена» и «интернет подтверждён»</strong> — разные условия. Проект проверяет подтверждённый интернет.</li>
+  <li><strong>Вход и регистрация</strong> сейчас обозначают конечную точку первой работы. Реальной авторизации, access token и серверного взаимодействия в этой лабораторной нет.</li>
+  <li><strong>Проверки</strong>: APK собирается, основные сценарии испытаны на эмуляторе; Android Lint офлайн не запускался.</li>
+</ul>
+
+<p class="small muted">Исходные файлы проекта и обновляемая HTML-версия этого конспекта находятся в папке D:\MP LAB.</p>
+</body>
+</html>
