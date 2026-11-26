@@ -1,4 +1,4 @@
--- Выполнить в SQL Editor после setup.sql. Повторный запуск безопасен.
+-- Выполнить в редакторе SQL после setup.sql. Повторный запуск безопасен.
 create table if not exists public.cars (
     id uuid primary key default gen_random_uuid(),
     brand text not null,

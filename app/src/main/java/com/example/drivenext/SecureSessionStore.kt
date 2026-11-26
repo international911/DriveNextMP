@@ -11,7 +11,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-// Ответ Supabase после входа: токены, пользователь и срок действия access token.
+// Данные пользователя и срок действия токена доступа после входа.
 data class AuthSession(
     val accessToken: String,
     val refreshToken: String,
@@ -39,7 +39,7 @@ class SecureSessionStore(context: Context) {
         write("session", json.toString())
     }
 
-    // Читаем и разбираем JSON; повреждённые данные считаем отсутствующей сессией.
+    // Если сохранённые данные повреждены, считаем, что пользователь вышел.
     @Synchronized
     fun load(): AuthSession? = read("session")?.let { serialized ->
         runCatching {
@@ -54,13 +54,13 @@ class SecureSessionStore(context: Context) {
         }.getOrNull()
     }
 
-    // state защищает от подмены ответа, verifier нужен для PKCE-обмена кода.
+    // Одноразовое состояние защищает ответ от подмены, а проверочный код нужен для получения токена.
     @Synchronized
     fun saveOAuth(state: String, verifier: String) {
         write("oauth", JSONObject().put("state", state).put("verifier", verifier).toString())
     }
 
-    // OAuth-параметры можно употребить только один раз и только с верным state.
+    // Данные входа через браузер используем один раз и только при совпадении состояния.
     @Synchronized
     fun consumeOAuth(expectedState: String): String? {
         val json = read("oauth")?.let { runCatching { JSONObject(it) }.getOrNull() }
@@ -74,7 +74,7 @@ class SecureSessionStore(context: Context) {
         preferences.edit().remove("session").remove("oauth").apply()
     }
 
-    // Шифруем текст AES-GCM и сохраняем IV вместе с шифротекстом в Preferences.
+    // Шифруем запись и сохраняем её вместе с вектором инициализации в настройках приложения.
     private fun write(key: String, value: String) {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, secretKey())
@@ -97,7 +97,7 @@ class SecureSessionStore(context: Context) {
         }
     }
 
-    // Берём ключ из Android Keystore или создаём новый, если запускаемся впервые.
+    // Берём ключ из защищённого хранилища устройства или создаём при первом запуске.
     private fun secretKey(): SecretKey {
         val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }

@@ -1,7 +1,7 @@
 // Читаем локальные настройки Supabase из файла, который не попадает в Git.
 import java.util.Properties
 
-// Android Gradle Plugin собирает приложение в APK.
+// Плагин Android собирает приложение в установочный файл.
 plugins {
     id("com.android.application")
 }
@@ -42,9 +42,9 @@ android {
     }
 }
 
-// Библиотеки AndroidX для экранов, заставки, фрагментов и ViewModel.
+// Библиотеки для экранов, заставки, фрагментов и моделей состояния.
 dependencies {
-    // MaterialDatePicker для выбора даты рождения и выдачи прав.
+    // Календарь MaterialDatePicker нужен для выбора даты рождения и выдачи прав.
     implementation("com.google.android.material:material:1.13.0")
     implementation("androidx.activity:activity:1.10.1")
     implementation("androidx.core:core:1.13.0")

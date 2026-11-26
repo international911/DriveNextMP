@@ -3,8 +3,6 @@ package com.example.drivenext
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -27,9 +25,6 @@ class CatalogActivity : FragmentActivity() {
     private var query = ""
     private var generation = 0
     private val executor = Executors.newSingleThreadExecutor()
-    private val handler = Handler(Looper.getMainLooper())
-    private var pendingSearch: Runnable? = null
-    private var ignoreSearchChange = false
     private val repository by lazy { CarRepository(this) }
     private val panels by lazy { CatalogPanels(this) }
     private lateinit var adapter: CarAdapter
@@ -49,29 +44,20 @@ class CatalogActivity : FragmentActivity() {
         searchView.setQuery(query, false)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(text: String?): Boolean {
-                cancelPendingSearch()
                 search(text.orEmpty())
                 searchView.clearFocus()
                 return true
             }
             override fun onQueryTextChange(text: String?): Boolean {
-                if (ignoreSearchChange) return true
-                cancelPendingSearch()
                 query = text.orEmpty().trim()
-                saveQuery()
-                ++generation // Результат старого запроса больше нельзя показывать.
-                showLoading(true)
-                val task = Runnable { pendingSearch = null; search(query) }
-                pendingSearch = task
-                handler.postDelayed(task, 350)
                 return true
             }
         })
         findViewById<BottomNavigationView>(R.id.catalogNavigation).setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> { showHome(); true }
-                R.id.nav_saved -> { cancelPendingSearch(); page = Page.FAVORITES; ++generation; showPanel("Избранное"); panels.text("Сохранённые автомобили появятся здесь."); true }
-                R.id.nav_settings -> { cancelPendingSearch(); showSettings(); true }
+                R.id.nav_saved -> { page = Page.FAVORITES; ++generation; showPanel("Избранное"); panels.text("Сохранённые автомобили появятся здесь."); true }
+                R.id.nav_settings -> { showSettings(); true }
                 else -> false
             }
         }
@@ -87,7 +73,6 @@ class CatalogActivity : FragmentActivity() {
     }
 
     private fun search(text: String) {
-        cancelPendingSearch()
         query = text.trim()
         saveQuery()
         if (query.isBlank()) showHome() else { page = Page.RESULTS; showList(); loadCars() }
@@ -98,13 +83,9 @@ class CatalogActivity : FragmentActivity() {
             apply()
         }
     }
-    private fun cancelPendingSearch() { pendingSearch?.let(handler::removeCallbacks); pendingSearch = null }
     private fun showHome() {
-        cancelPendingSearch()
         query = ""; page = Page.HOME; saveQuery()
-        ignoreSearchChange = true
         findViewById<SearchView>(R.id.carSearch).setQuery("", false)
-        ignoreSearchChange = false
         showList(); loadCars()
     }
     private fun showList() {
@@ -138,7 +119,6 @@ class CatalogActivity : FragmentActivity() {
         }
     }
     private fun showSettings() {
-        cancelPendingSearch()
         page = Page.SETTINGS; ++generation; showPanel("Настройки")
         val header = panels.settings(SecureSessionStore(this).load()?.email.orEmpty(),
             ::showProfile, ::showBookings, ::showAddCar) { title ->
@@ -152,7 +132,6 @@ class CatalogActivity : FragmentActivity() {
     }
 
     private fun showProfile() {
-        cancelPendingSearch()
         page = Page.PROFILE; ++generation; showPanel("Профиль")
         work({ repository.profile() }, { profile ->
             val avatar = panels.profile(profile, { avatarPicker.launch("image/*") }) {
@@ -179,7 +158,6 @@ class CatalogActivity : FragmentActivity() {
             .putExtra(SectionActivity.EXTRA_PHOTO, car.photoResource()))
     }
     private fun showInfo(car: Car) {
-        cancelPendingSearch()
         page = Page.DETAILS; ++generation; showPanel("Детали")
         findViewById<Button>(R.id.catalogRetry).setOnClickListener { showInfo(car) }
         work({ repository.car(car.id) }, { current ->
@@ -221,5 +199,5 @@ class CatalogActivity : FragmentActivity() {
             if (!isFinishing && !isDestroyed && current == generation) { showLoading(false); result.onSuccess(success).onFailure(failure) }
         } }
     }
-    override fun onDestroy() { cancelPendingSearch(); executor.shutdownNow(); super.onDestroy() }
+    override fun onDestroy() { executor.shutdownNow(); super.onDestroy() }
 }

@@ -7,11 +7,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executors
 
-// Экраны входа и регистрации, которые переключает одна Activity.
+// Возможные страницы формы входа и регистрации.
 enum class AuthPage { LOGIN, STEP1, STEP2, STEP3, SUCCESS }
 enum class AuthEventType { HOME, GOOGLE_URL, REGISTERED, RESET, ERROR }
 
-// Разовое событие для UI: переход, сообщение об ошибке либо ссылка OAuth.
+// Результат операции для экрана: переход, ошибка или ссылка входа через Google.
 data class AuthEvent(val type: AuthEventType, val message: String = "", val uri: Uri? = null) {
     private var handled = false
     // После поворота экрана уже показанное сообщение не показывается второй раз.
@@ -29,7 +29,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     @Volatile var busy = false
         private set
 
-    // Репозиторий общается с Supabase, executor выполняет запросы последовательно.
+    // Запросы к серверу выполняются последовательно в отдельном потоке.
     private val repository = AuthRepository(application)
     private val executor = Executors.newSingleThreadExecutor()
     private val mutableEvent = MutableLiveData<AuthEvent>()
@@ -41,7 +41,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     fun resetPassword() = runAction(AuthEventType.RESET) { repository.sendPasswordReset(loginEmail) }
     // Обрабатываем обратную ссылку от браузера и меняем код на сессию.
     fun googleCallback(uri: Uri) = runAction(AuthEventType.HOME) { repository.completeGoogleOAuth(uri) }
-    // Запрашиваем адрес Google OAuth в фоне и отдаём его Activity для открытия браузера.
+    // Получаем ссылку входа через Google и передаём её экрану для открытия браузера.
     fun startGoogle() {
         if (busy) return
         busy = true
@@ -55,7 +55,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Общая обёртка: блокируем повторный запрос, ловим ошибку и отправляем событие UI.
+    // Пока запрос выполняется, не запускаем второй; результат передаём экрану.
     private fun runAction(successType: AuthEventType, operation: () -> Unit) {
         if (busy) return
         busy = true
@@ -66,7 +66,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Останавливаем фоновый поток, когда ViewModel больше не нужна.
+    // Останавливаем фоновый поток, когда модель экрана больше не нужна.
     override fun onCleared() {
         executor.shutdownNow()
         super.onCleared()

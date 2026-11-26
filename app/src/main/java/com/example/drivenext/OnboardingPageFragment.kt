@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 
-// Отдельная страница приветствия; номер страницы приходит через arguments.
+// Номер страницы передаётся при создании фрагмента приветствия.
 class OnboardingPageFragment : Fragment() {
     // Загружаем одну XML-разметку для всех трёх страниц.
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
@@ -16,7 +16,7 @@ class OnboardingPageFragment : Fragment() {
 
     // После создания View подставляем картинку и текст нужной страницы.
     override fun onViewCreated(view: View, state: Bundle?) {
-        // coerceIn защищает массивы от неверного номера страницы.
+        // Ограничиваем номер допустимыми значениями, чтобы не выйти за пределы массива.
         val page = requireArguments().getInt(ARG_PAGE).coerceIn(0, 2)
         val image = view.findViewById<ImageView>(R.id.pageImage)
         val title = view.findViewById<TextView>(R.id.pageTitle)

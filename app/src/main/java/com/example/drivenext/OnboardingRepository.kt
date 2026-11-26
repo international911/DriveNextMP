@@ -4,7 +4,7 @@ import android.content.Context
 
 // Хранит ответ на вопрос: пользователь уже прошёл приветственные экраны или нет.
 class OnboardingRepository(context: Context) {
-    // SharedPreferences — небольшое постоянное хранилище самого приложения.
+    // Системные настройки сохраняют отметку даже после закрытия приложения.
     private val preferences = context.applicationContext.getSharedPreferences("drive_next", Context.MODE_PRIVATE)
 
     // Если записи ещё нет, считаем, что приветствие не пройдено.

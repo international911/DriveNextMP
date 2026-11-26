@@ -1,5 +1,5 @@
--- Выполнить один раз в Supabase SQL Editor; service_role ключ в приложение не добавлять.
--- Таблица дополнительных данных пользователя; id связан с аккаунтом Supabase Auth.
+-- Выполнить один раз в редакторе SQL Supabase; секретный ключ администратора в приложение не добавлять.
+-- Таблица дополнительных данных пользователя связана с его учётной записью по номеру.
 create table if not exists public.profiles (
     -- При удалении пользователя его профиль удалится автоматически.
     id uuid primary key references auth.users(id) on delete cascade,
@@ -20,7 +20,7 @@ create table if not exists public.profiles (
     created_at timestamptz not null default now()
 );
 
--- RLS ограничивает доступ к строкам таблицы на стороне сервера.
+-- Правила безопасности строк ограничивают доступ к профилям на стороне сервера.
 alter table public.profiles enable row level security;
 revoke all on table public.profiles from anon, authenticated;
 grant select, insert, update on table public.profiles to authenticated;
@@ -29,7 +29,7 @@ create policy "profile owner select" on public.profiles for select to authentica
 create policy "profile owner insert" on public.profiles for insert to authenticated with check (id = (select auth.uid()));
 create policy "profile owner update" on public.profiles for update to authenticated using (id = (select auth.uid())) with check (id = (select auth.uid()));
 
--- Закрытая папка Storage: изображения не больше 6 МБ, только поддержанные форматы.
+-- Закрытое хранилище принимает изображения до 6 МБ в поддерживаемых форматах.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('registration-documents', 'registration-documents', false, 6291456, array['image/jpeg', 'image/png', 'image/webp'])
 on conflict (id) do update set public = false, file_size_limit = 6291456,

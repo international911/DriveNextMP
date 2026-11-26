@@ -9,7 +9,7 @@ import java.util.Locale
 object AuthValidator {
     // Почта должна иметь допустимую форму и заканчиваться на .com либо .ru.
     private val emailPattern = Regex("^[A-Z0-9](?:[A-Z0-9._%+-]*[A-Z0-9])?@[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?(?:\\.[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?)*\\.(COM|RU)$", RegexOption.IGNORE_CASE)
-    // Форматы дат взяты из текстовых требований методички; STRICT отсекает невозможные даты.
+    // Форматы дат взяты из требований; строгий разбор отсекает невозможные даты.
     private val birthFormatter = DateTimeFormatter.ofPattern("MM/dd/uuuu", Locale.US).withResolverStyle(ResolverStyle.STRICT)
     private val issueFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu", Locale.US).withResolverStyle(ResolverStyle.STRICT)
 
@@ -37,7 +37,7 @@ object AuthValidator {
     // Номер прав: ровно десять обычных цифр без пробелов и букв.
     fun validLicenseNumber(value: String): Boolean = value.length == 10 && value.all { it in '0'..'9' }
 
-    // Возвращаем первую ошибку первого шага либо null, когда всё заполнено правильно.
+    // Возвращаем первую ошибку первого шага; пустой результат означает, что всё верно.
     fun step1Error(draft: RegistrationDraft): ValidationError? = when {
         !validEmail(draft.email) -> ValidationError.EMAIL
         isShortGmailAddress(draft.email) -> ValidationError.EMAIL_GMAIL_LENGTH

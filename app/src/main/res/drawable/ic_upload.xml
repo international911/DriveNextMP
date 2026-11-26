@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Векторное изображение, масштабируемое без потери качества. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-    <!-- Контур, из которого рисуется векторная иконка. -->
     <path android:fillColor="@android:color/transparent" android:strokeColor="@color/field_hint"
         android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round"
         android:pathData="M12,16V3 M7,8L12,3L17,8 M4,15V20H20V15" />

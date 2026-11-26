@@ -21,7 +21,7 @@ class MainActivity : FragmentActivity() {
     // Модель хранит состояние переходов, менеджер сети сообщает о подключении.
     private lateinit var model: StartupViewModel
     private lateinit var connectivityManager: ConnectivityManager
-    // Handler запускает окончание заставки в главном потоке через нужное время.
+    // Отложенную смену заставки выполняем в главном потоке.
     private val handler = Handler(Looper.getMainLooper())
     private var displayedScreen: Screen? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
@@ -32,7 +32,6 @@ class MainActivity : FragmentActivity() {
         render()
     }
 
-    // Android вызывает onCreate при создании экрана.
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -56,14 +55,14 @@ class MainActivity : FragmentActivity() {
         refreshNetwork()
     }
 
-    // Убираем подписку, чтобы не держать невидимую Activity в памяти.
+    // Убираем подписку, чтобы невидимый экран не оставался в памяти.
     override fun onStop() {
         networkCallback?.let(connectivityManager::unregisterNetworkCallback)
         networkCallback = null
         super.onStop()
     }
 
-    // Отменяем отложенный переход, если Activity уничтожена.
+    // Отменяем отложенный переход при уничтожении экрана.
     override fun onDestroy() {
         handler.removeCallbacks(splashTask)
         super.onDestroy()
@@ -128,7 +127,7 @@ class MainActivity : FragmentActivity() {
                 indicators.addView(indicator)
             }
         }
-        // ViewPager2 сообщает, когда пользователь перелистнул страницу.
+        // После перелистывания обновляем номер страницы и состояние кнопок.
         pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) = updatePage(position)
         })

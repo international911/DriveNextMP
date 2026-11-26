@@ -6,7 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 
-// Показывает выбранный раздел и сведения об автомобиле, переданные через Intent.
+// Показывает раздел и сведения об автомобиле, полученные при переходе на экран.
 class SectionActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

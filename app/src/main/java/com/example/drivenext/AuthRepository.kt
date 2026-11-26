@@ -13,7 +13,7 @@ import java.util.Locale
 // Ошибка, текст которой можно безопасно показать пользователю.
 class AuthException(message: String) : Exception(message)
 
-// Делает реальные HTTP-запросы к Supabase Auth, Storage и таблице profiles.
+// Отправляет запросы входа, загрузки файлов и сохранения профиля в Supabase.
 class AuthRepository(context: Context) {
     private val appContext = context.applicationContext
     private val sessions = SecureSessionStore(appContext)
@@ -56,7 +56,7 @@ class AuthRepository(context: Context) {
                 .put("password", draft.password)
                 .put("data", JSONObject().put("first_name", draft.firstName.trim()).put("last_name", draft.lastName.trim()))
             val response = client.request("POST", "/auth/v1/signup", body = body)
-            // При включённом Confirm Email Supabase ещё не даёт токен для загрузки файлов.
+            // Пока почта не подтверждена, сервер не выдаёт токен для загрузки файлов.
             if (response.optString("access_token").isBlank()) {
                 throw AuthException("Аккаунт создан. Подтвердите электронную почту и войдите, чтобы завершить загрузку документов.")
             }
@@ -64,13 +64,13 @@ class AuthRepository(context: Context) {
         }
 
         val userId = session.userId
-        // Все пути начинаются с ID владельца: этого требуют правила доступа Storage.
+        // Путь к каждому файлу начинается с номера владельца для проверки доступа.
         val prefix = "$userId/"
         val avatarPath = draft.avatarUri?.let { client.upload(it, prefix + "avatar.jpg", session) }
         val licensePath = client.upload(draft.licensePhotoUri ?: throw AuthException("Добавьте фото водительского удостоверения."), prefix + "license.jpg", session)
         val passportPath = client.upload(draft.passportPhotoUri ?: throw AuthException("Добавьте фото паспорта."), prefix + "passport.jpg", session)
 
-        // Для PostgreSQL переводим экранные даты в стандартный формат ISO yyyy-MM-dd.
+        // Перед отправкой переводим даты в формат года, месяца и дня, который принимает база.
         val birth = LocalDate.parse(draft.birthDate, DateTimeFormatter.ofPattern("MM/dd/uuuu", Locale.US)).toString()
         val issued = LocalDate.parse(draft.licenseIssueDate, DateTimeFormatter.ofPattern("dd/MM/uuuu", Locale.US)).toString()
         val profile = JSONObject()
@@ -85,17 +85,17 @@ class AuthRepository(context: Context) {
             .put("avatar_path", avatarPath)
             .put("license_photo_path", licensePath)
             .put("passport_photo_path", passportPath)
-        // on_conflict=id обновляет профиль того же пользователя при повторной отправке.
+        // При повторной отправке обновляем профиль того же пользователя по его номеру.
         client.request("POST", "/rest/v1/profiles?on_conflict=id", body = profile, token = session.accessToken, extraHeaders = mapOf("Prefer" to "resolution=merge-duplicates,return=minimal"))
     }
 
-    // Готовим PKCE-ссылку Google, предварительно проверяя настройку провайдера.
+        // Перед входом через Google проверяем, включён ли этот способ на сервере.
     fun startGoogleOAuth(): Uri {
         client.ensureConfigured()
         val providers = client.request("GET", "/auth/v1/settings").optJSONObject("external")
         if (providers?.optBoolean("google") != true) throw AuthException(appContext.getString(R.string.google_provider_disabled))
         val random = SecureRandom()
-        // verifier останется только в приложении, challenge уйдёт на сервер.
+        // Секретная часть остаётся в приложении; на сервер отправляем только её отпечаток.
         val verifierBytes = ByteArray(48).also(random::nextBytes)
         val stateBytes = ByteArray(24).also(random::nextBytes)
         val verifier = Base64.encodeToString(verifierBytes, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
@@ -104,7 +104,7 @@ class AuthRepository(context: Context) {
             MessageDigest.getInstance("SHA-256").digest(verifier.toByteArray(Charsets.US_ASCII)),
             Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING,
         )
-        // Сохраняем state и verifier до возвращения пользователя из браузера.
+        // Сохраняем данные проверки до возвращения пользователя из браузера.
         sessions.saveOAuth(state, verifier)
         val callback = Uri.parse("com.example.drivenext://auth-callback").buildUpon().appendQueryParameter("state", state).build()
         return Uri.parse("$baseUrl/auth/v1/authorize").buildUpon()
@@ -115,7 +115,7 @@ class AuthRepository(context: Context) {
             .build()
     }
 
-    // Обрабатываем ошибку или меняем OAuth-код из deep link на токены Supabase.
+    // Проверяем ссылку возврата и обмениваем полученный код на токены.
     fun completeGoogleOAuth(callback: Uri) {
         client.ensureConfigured()
         val errorCode = callback.getQueryParameter("error")
@@ -129,7 +129,7 @@ class AuthRepository(context: Context) {
             }
             throw AuthException(message)
         }
-        // Отклоняем ответ без state или с чужим/повторно использованным state.
+        // Отклоняем ответ без состояния, с чужим состоянием или его повтором.
         val state = callback.getQueryParameter("state") ?: throw AuthException("Не удалось проверить ответ Google. Начните вход заново.")
         val verifier = sessions.consumeOAuth(state) ?: throw AuthException("Срок действия входа истёк. Начните вход через Google заново.")
         val code = callback.getQueryParameter("code") ?: throw AuthException("Google не вернул код авторизации.")
@@ -137,14 +137,14 @@ class AuthRepository(context: Context) {
         saveSession(client.request("POST", "/auth/v1/token?grant_type=pkce", body = body))
     }
 
-    // Продлеваем сессию refresh token, если access token закончился.
+    // Продлеваем сессию, когда истёк токен доступа.
     private fun refresh(session: AuthSession): AuthSession {
         if (session.refreshToken.isBlank()) throw AuthException("Сессия истекла. Войдите снова.")
         val body = JSONObject().put("refresh_token", session.refreshToken)
         return saveSession(client.request("POST", "/auth/v1/token?grant_type=refresh_token", body = body))
     }
 
-    // Проверяем обязательные поля ответа и сохраняем токены в Keystore-хранилище.
+    // Проверяем ответ сервера и сохраняем токены в защищённом хранилище.
     private fun saveSession(json: JSONObject): AuthSession {
         val user = json.optJSONObject("user") ?: throw AuthException("Сервер не вернул данные пользователя.")
         val session = AuthSession(

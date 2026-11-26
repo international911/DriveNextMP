@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Фигура фона для элемента интерфейса. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Цвет заливки фигуры. -->
     <solid android:color="@color/purple" />
-    <!-- Закругление углов фигуры. -->
     <corners android:radius="6dp" />
 </shape>

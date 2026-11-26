@@ -4,10 +4,10 @@ import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-// Возможные экраны приложения; ViewModel хранит один текущий экран.
+// Возможные экраны на этапе запуска приложения.
 enum class Screen { SPLASH, OFFLINE, ONBOARDING, ENTRY, HOME }
 
-// Состояние стартового сценария переживает поворот экрана вместе с ViewModel.
+// Модель хранит текущий экран даже после поворота устройства.
 class StartupViewModel(private val onboardingRepository: OnboardingRepository) : ViewModel() {
     // Изменять экран снаружи нельзя: переходы выполняются методами ниже.
     var screen: Screen = Screen.SPLASH
@@ -60,7 +60,7 @@ class StartupViewModel(private val onboardingRepository: OnboardingRepository) :
         interruptedScreen = null
     }
 
-    // Factory передаёт репозиторий в конструктор ViewModel.
+    // Фабрика передаёт хранилище настроек в модель при её создании.
     class Factory(private val repository: OnboardingRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

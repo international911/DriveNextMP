@@ -13,15 +13,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.datepicker.MaterialDatePicker
 
-// Один экран управляет входом и тремя шагами регистрации через AuthPage.
+// Состояние страницы определяет, показывать вход или один из шагов регистрации.
 class AuthActivity : FragmentActivity() {
     private lateinit var model: AuthViewModel
     private val form by lazy { AuthForm(this, model) }
-    // Системная галерея возвращает Uri выбранной фотографии либо null при отмене.
+    // Галерея возвращает адрес выбранного фото; при отмене результат пустой.
     private val gallery = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) { media.savePhoto(uri); render() }
     }
-    // Камера записывает снимок в заранее подготовленный Uri.
+    // Камера записывает снимок по заранее подготовленному адресу.
     private val camera = registerForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
         if (saved) model.cameraUri?.let { uri -> media.savePhoto(uri) }
         model.cameraUri = null
@@ -29,7 +29,7 @@ class AuthActivity : FragmentActivity() {
     }
     private val media: AuthMedia by lazy { AuthMedia(this, model, gallery, camera, ::syncFields, ::render) }
 
-    // Создаём разметку, подписываемся на события ViewModel и обрабатываем deep link.
+    // Показываем форму, слушаем результат входа и принимаем ссылку возврата из браузера.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         model = ViewModelProvider(this)[AuthViewModel::class.java]
@@ -53,7 +53,7 @@ class AuthActivity : FragmentActivity() {
             override fun handleOnBackPressed() = goBack()
         })
         render()
-        // Android восстанавливает открытый диалог после поворота; слушатель добавляем снова.
+        // После поворота система восстанавливает календарь; обработчик выбранной даты подключаем снова.
         (supportFragmentManager.findFragmentByTag("birthDatePicker") as? MaterialDatePicker<*>)
             ?.let { media.attachDatePickerListener(it, true) }
         (supportFragmentManager.findFragmentByTag("issueDatePicker") as? MaterialDatePicker<*>)
@@ -61,7 +61,7 @@ class AuthActivity : FragmentActivity() {
         intent?.data?.let(::handleCallback)
     }
 
-    // Уже открытая Activity тоже должна принять возврат из браузера Google.
+    // Уже открытый экран тоже принимает результат входа через Google.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -74,7 +74,7 @@ class AuthActivity : FragmentActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    // Принимаем только deep link своего приложения и передаём его в ViewModel.
+    // Принимаем только ссылку возврата нашего приложения и передаём её модели экрана.
     private fun handleCallback(uri: Uri) {
         if (uri.scheme == "com.example.drivenext" && uri.host == "auth-callback") {
             findViewById<View>(R.id.loadingOverlay).visibility = View.VISIBLE
@@ -181,7 +181,7 @@ class AuthActivity : FragmentActivity() {
     private fun showError(message: String) {
         AlertDialog.Builder(this).setTitle(R.string.error_title).setMessage(message).setPositiveButton(R.string.ok, null).show()
     }
-    // Закрываем вход и просим MainActivity открыть пустой главный экран.
+    // После входа закрываем форму и открываем главный экран.
     private fun openHome() {
         startActivity(Intent(this, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN_HOME, true)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))

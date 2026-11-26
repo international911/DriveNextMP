@@ -1,5 +1,5 @@
 -- Схема бронирований и автомобилей пользователей; текущий клиент к этим таблицам не обращается.
--- При развёртывании выполнить после setup.sql и catalog.sql в Supabase SQL Editor.
+-- При развёртывании выполнить после setup.sql и catalog.sql в редакторе SQL Supabase.
 -- Без этого скрипта оформление аренды и подключение автомобиля не смогут сохранять данные.
 alter table public.cars add column if not exists location text not null default 'Адрес уточняется';
 alter table public.cars add column if not exists insurance_per_day integer not null default 500 check (insurance_per_day >= 0);

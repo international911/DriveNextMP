@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import java.time.OffsetDateTime
 
-// Рисует содержимое настроек, профиля и деталей; запросы к серверу остаются в Activity.
+// Создаёт содержимое настроек, профиля и карточки; запросы выполняет экран каталога.
 class CatalogPanels(private val activity: CatalogActivity) {
     data class SettingsHeader(val name: TextView, val email: TextView, val avatar: ImageView)
     private val content: LinearLayout get() = activity.findViewById(R.id.catalogContent)
@@ -41,14 +41,14 @@ class CatalogPanels(private val activity: CatalogActivity) {
         val emailView = label(email, 14f, R.color.field_hint)
         labels.addView(name); labels.addView(emailView)
         account.addView(avatar); account.addView(labels, LinearLayout.LayoutParams(0, -2, 1f))
-        account.addView(label("›", 30f, R.color.purple)); content.addView(account)
-        menuRow("▣", "Мои бронирования", onBookings)
-        menuRow("☼", "Тема") { onOther("Тема") }
-        menuRow("♧", "Уведомления") { onOther("Уведомления") }
-        menuRow("▤", "Подключить свой автомобиль", onAddCar)
+        account.addView(chevron()); content.addView(account)
+        menuRow(R.drawable.ic_booking, "Мои бронирования", onBookings)
+        menuRow(R.drawable.ic_theme, "Тема") { onOther("Тема") }
+        menuRow(R.drawable.ic_notification, "Уведомления") { onOther("Уведомления") }
+        menuRow(R.drawable.ic_connect_car, "Подключить свой автомобиль", onAddCar)
         divider()
-        menuRow("ⓘ", "Помощь") { onOther("Помощь") }
-        menuRow("✉", "Пригласи друга") { onOther("Пригласи друга") }
+        menuRow(R.drawable.ic_help, "Помощь") { onOther("Помощь") }
+        menuRow(R.drawable.ic_invite, "Пригласи друга") { onOther("Пригласи друга") }
         return SettingsHeader(name, emailView, avatar)
     }
 
@@ -76,7 +76,7 @@ class CatalogPanels(private val activity: CatalogActivity) {
         detailRow("Электронная почта", profile.email)
         detailRow("Пароль", "Изменить пароль")
         profile.gender?.let { detailRow("Пол", if (it == "male") "Мужской" else "Женский") }
-        menuRow("", "Выйти из профиля", onExit)
+        menuRow(null, "Выйти из профиля", onExit)
         return avatar
     }
 
@@ -105,14 +105,24 @@ class CatalogPanels(private val activity: CatalogActivity) {
         content.addView(View(activity).apply { setBackgroundColor(activity.getColor(R.color.divider)) },
             LinearLayout.LayoutParams(-1, dp(1)))
     }
-    private fun menuRow(icon: String, title: String, action: () -> Unit) {
+    private fun chevron() = ImageView(activity).apply {
+        layoutParams = LinearLayout.LayoutParams(dp(24), dp(24))
+        setImageResource(R.drawable.ic_chevron_right)
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+    }
+    private fun menuRow(icon: Int?, title: String, action: () -> Unit) {
         val row = LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
             setPadding(0, dp(18), 0, dp(18)); setOnClickListener { action() }
         }
-        row.addView(label(icon, 22f, R.color.purple), LinearLayout.LayoutParams(dp(32), -2))
+        val iconHolder = if (icon == null) View(activity) else ImageView(activity).apply {
+            setImageResource(icon)
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        row.addView(iconHolder, LinearLayout.LayoutParams(dp(32), dp(24)))
         row.addView(label(title, 17f, R.color.purple), LinearLayout.LayoutParams(0, -2, 1f))
-        row.addView(label("›", 28f, R.color.purple)); content.addView(row)
+        row.addView(chevron()); content.addView(row)
     }
     private fun detailRow(title: String, value: String) {
         divider()

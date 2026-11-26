@@ -11,7 +11,7 @@ import java.net.URL
 // Общий HTTP-клиент Supabase для входа, регистрации и загрузки документов.
 class AuthHttpClient(private val appContext: Context, private val baseUrl: String, private val publicKey: String) {
     fun configured(): Boolean = baseUrl.startsWith("https://") && publicKey.isNotBlank()
-    // Читаем выбранное изображение по Uri и отправляем в закрытый Storage bucket.
+    // Читаем выбранное изображение и отправляем его в закрытое хранилище.
     fun upload(uri: Uri, path: String, session: AuthSession): String {
         val size = appContext.contentResolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)?.use { cursor ->
             if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getLong(0) else null
@@ -41,7 +41,7 @@ class AuthHttpClient(private val appContext: Context, private val baseUrl: Strin
         }
     }
 
-    // Универсальный JSON-запрос: добавляет тело, заголовки и разбирает ответ.
+    // Отправляем запрос с нужными заголовками и разбираем ответ сервера.
     fun request(method: String, path: String, body: JSONObject? = null, token: String? = null, extraHeaders: Map<String, String> = emptyMap()): JSONObject {
         val connection = open(method, path, token)
         try {
@@ -57,7 +57,7 @@ class AuthHttpClient(private val appContext: Context, private val baseUrl: Strin
         }
     }
 
-    // Создаём соединение с таймаутами и нужным Authorization/apikey.
+    // Ограничиваем время ожидания и передаём токен вместе с публичным ключом.
     private fun open(method: String, path: String, token: String? = null): HttpURLConnection =
         (URL(baseUrl + path).openConnection() as HttpURLConnection).apply {
             requestMethod = method
@@ -67,7 +67,7 @@ class AuthHttpClient(private val appContext: Context, private val baseUrl: Strin
             if (token != null) setRequestProperty("Authorization", "Bearer $token")
         }
 
-    // Читаем JSON и переводим известные серверные коды ошибок на русский язык.
+    // Разбираем ответ и заменяем известные ошибки сервера понятными сообщениями.
     private fun readResponse(connection: HttpURLConnection): JSONObject {
         val code = try { connection.responseCode } catch (error: IOException) {
             throw AuthException("Не удалось подключиться к серверу. Проверьте интернет и повторите попытку.")

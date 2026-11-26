@@ -16,7 +16,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// Выбирает даты и фотографии; Activity передаёт сюда только результат системных окон.
+// Открывает календарь, галерею и камеру; результаты сохраняет в черновике регистрации.
 class AuthMedia(
     private val activity: AuthActivity,
     private val model: AuthViewModel,

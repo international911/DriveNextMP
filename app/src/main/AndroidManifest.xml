@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Объявляет приложение, компоненты и разрешения Android. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Разрешение Android, нужное приложению. ID/имя: android.permission.INTERNET. -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Разрешение Android, нужное приложению. ID/имя: android.permission.ACCESS_NETWORK_STATE. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- Общие настройки Android-приложения. -->
     <application
         android:allowBackup="false"
         android:label="@string/app_name"
@@ -13,44 +9,32 @@
         android:theme="@style/Theme.DriveNext">
         <activity android:name=".SectionActivity" android:exported="false" />
         <activity android:name=".CatalogActivity" android:exported="false" />
-        <!-- FileProvider безопасно передаёт Uri снимка камере. ID/имя: androidx.core.content.FileProvider. -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
-            <!-- Дополнительная настройка Android-компонента. ID/имя: android.support.FILE_PROVIDER_PATHS. -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <!-- Регистрирует экран приложения в Android. ID/имя: .AuthActivity. -->
         <activity
             android:name=".AuthActivity"
             android:exported="true"
             android:launchMode="singleTop">
-            <!-- Описывает, какой Intent может открыть экран. -->
             <intent-filter>
-                <!-- Тип действия, которое принимает экран. ID/имя: android.intent.action.VIEW. -->
                 <action android:name="android.intent.action.VIEW" />
-                <!-- Категория Intent для запуска или ссылки. ID/имя: android.intent.category.DEFAULT. -->
                 <category android:name="android.intent.category.DEFAULT" />
-                <!-- Категория Intent для запуска или ссылки. ID/имя: android.intent.category.BROWSABLE. -->
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Схема и адрес обратной ссылки OAuth. -->
                 <data android:scheme="com.example.drivenext" android:host="auth-callback" />
             </intent-filter>
         </activity>
-        <!-- Регистрирует экран приложения в Android. ID/имя: .MainActivity. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.DriveNext.Splash">
-            <!-- Описывает, какой Intent может открыть экран. -->
             <intent-filter>
-                <!-- Тип действия, которое принимает экран. ID/имя: android.intent.action.MAIN. -->
                 <action android:name="android.intent.action.MAIN" />
-                <!-- Категория Intent для запуска или ссылки. ID/имя: android.intent.category.LAUNCHER. -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

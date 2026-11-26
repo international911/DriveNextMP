@@ -12,7 +12,7 @@ object NetworkChecker {
         // Без активной сети и её характеристик доступ считать нельзя.
         val network = manager.activeNetwork ?: return false
         val capabilities = manager.getNetworkCapabilities(network) ?: return false
-        // INTERNET означает возможность передачи данных, VALIDATED — проверку системой.
+        // Нужны и возможность передачи данных, и подтверждение соединения системой.
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
             capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
