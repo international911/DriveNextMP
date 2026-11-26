@@ -1,6 +1,7 @@
 package com.example.drivenext
 
 import android.net.ConnectivityManager
+import android.content.Intent
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -15,26 +16,34 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 
+// Главный контейнер экранов: заставка, отсутствие сети, приветствие, вход и дом.
 class MainActivity : FragmentActivity() {
+    // Модель хранит состояние переходов, менеджер сети сообщает о подключении.
     private lateinit var model: StartupViewModel
     private lateinit var connectivityManager: ConnectivityManager
+    // Handler запускает окончание заставки в главном потоке через нужное время.
     private val handler = Handler(Looper.getMainLooper())
     private var displayedScreen: Screen? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    // Задача, которая завершит заставку и проверит сохранённую сессию.
     private val splashTask = Runnable {
         model.finishSplash(NetworkChecker.hasInternet(this))
+        if (model.screen == Screen.ENTRY && AuthRepository(this).validLocalSession()) model.openHome()
         render()
     }
 
+    // Android вызывает onCreate при создании экрана.
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         model = ViewModelProvider(this, StartupViewModel.Factory(OnboardingRepository(applicationContext)))[StartupViewModel::class.java]
         connectivityManager = getSystemService(ConnectivityManager::class.java)
+        if (intent.getBooleanExtra(EXTRA_OPEN_HOME, false)) model.openHome()
         render()
         if (model.screen == Screen.SPLASH) handler.postDelayed(splashTask, model.remainingSplashMillis())
     }
 
+    // Пока экран виден, подписываемся на изменения сети.
     override fun onStart() {
         super.onStart()
         val callback = object : ConnectivityManager.NetworkCallback() {
@@ -47,17 +56,20 @@ class MainActivity : FragmentActivity() {
         refreshNetwork()
     }
 
+    // Убираем подписку, чтобы не держать невидимую Activity в памяти.
     override fun onStop() {
         networkCallback?.let(connectivityManager::unregisterNetworkCallback)
         networkCallback = null
         super.onStop()
     }
 
+    // Отменяем отложенный переход, если Activity уничтожена.
     override fun onDestroy() {
         handler.removeCallbacks(splashTask)
         super.onDestroy()
     }
 
+    // Сетевое событие переводим в главный поток перед сменой интерфейса.
     private fun refreshNetwork() {
         runOnUiThread {
             model.onNetworkChanged(NetworkChecker.hasInternet(this))
@@ -65,7 +77,9 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    // Выбираем XML-разметку по текущему состоянию и подключаем кнопки.
     private fun render() {
+        // Повторно строить тот же экран не требуется.
         if (displayedScreen == model.screen) return
         displayedScreen = model.screen
         when (model.screen) {
@@ -75,10 +89,22 @@ class MainActivity : FragmentActivity() {
                 findViewById<Button>(R.id.retryButton).setOnClickListener { refreshNetwork() }
             }
             Screen.ONBOARDING -> showOnboarding()
-            Screen.ENTRY -> setContentView(R.layout.screen_entry)
+            Screen.ENTRY -> {
+                setContentView(R.layout.screen_entry)
+                findViewById<Button>(R.id.entryLogin).setOnClickListener { openAuth(false) }
+                findViewById<Button>(R.id.entryRegister).setOnClickListener { openAuth(true) }
+            }
+            Screen.HOME -> {
+                startActivity(Intent(this, CatalogActivity::class.java))
+                finish()
+            }
         }
     }
 
+    // Открываем общий экран авторизации и передаём, с какой вкладки начать.
+    private fun openAuth(register: Boolean) = startActivity(Intent(this, AuthActivity::class.java).putExtra(AuthActivity.EXTRA_REGISTER, register))
+
+    // Настраиваем перелистывание, надписи кнопок и индикаторы трёх слайдов.
     private fun showOnboarding() {
         setContentView(R.layout.screen_onboarding)
         val pager = findViewById<ViewPager2>(R.id.onboardingPager)
@@ -87,6 +113,7 @@ class MainActivity : FragmentActivity() {
         val indicators = findViewById<LinearLayout>(R.id.pageIndicators)
         pager.adapter = OnboardingAdapter(this)
         pager.setCurrentItem(model.onboardingPage, false)
+        // Перерисовываем индикаторы при выборе страницы.
         fun updatePage(position: Int) {
             model.onboardingPage = position
             next.setText(if (position == 2) R.string.lets_go else R.string.next)
@@ -101,6 +128,7 @@ class MainActivity : FragmentActivity() {
                 indicators.addView(indicator)
             }
         }
+        // ViewPager2 сообщает, когда пользователь перелистнул страницу.
         pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) = updatePage(position)
         })
@@ -112,10 +140,14 @@ class MainActivity : FragmentActivity() {
         skip.setOnClickListener { completeOnboarding() }
     }
 
+    // Сохраняем завершение приветствия и показываем следующий экран.
     private fun completeOnboarding() {
         model.completeOnboarding()
         render()
     }
 
+    // Переводим dp в пиксели экрана для размеров индикаторов.
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    companion object { const val EXTRA_OPEN_HOME = "open_home" }
 }

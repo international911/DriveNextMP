@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+    <LinearLayout android:id="@+id/catalogHeader" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="@color/catalog_header"
+        android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="20dp" android:paddingBottom="18dp">
+        <TextView android:id="@+id/catalogBack" android:layout_width="48dp" android:layout_height="40dp"
+            android:gravity="center_vertical" android:text="‹" android:textSize="32sp"
+            android:textColor="@color/text" android:visibility="gone" android:contentDescription="Назад" />
+        <TextView android:id="@+id/catalogTitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center" android:textColor="@color/text" android:textSize="21sp" android:textStyle="bold" />
+        <SearchView android:id="@+id/carSearch" android:layout_width="match_parent" android:layout_height="54dp"
+            android:layout_marginTop="30dp" android:background="@drawable/search_field_background"
+            android:queryHint="Введите марку автомобиля" android:iconifiedByDefault="false" />
+        <TextView android:id="@+id/homeLead" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="28dp" android:text="Давайте найдем автомобиль"
+            android:textColor="@color/text" android:textSize="20sp" android:textStyle="bold" />
+    </LinearLayout>
+    <ProgressBar android:id="@+id/catalogProgress" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:visibility="gone" />
+    <TextView android:id="@+id/catalogMessage" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:padding="20dp" android:textColor="@color/error" android:visibility="gone" />
+    <Button android:id="@+id/catalogRetry" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:text="Повторить" android:visibility="gone" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/carList" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false"
+        android:paddingTop="18dp" android:paddingBottom="12dp" />
+    <ScrollView android:id="@+id/catalogScroll" android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:fillViewport="true" android:visibility="gone">
+        <LinearLayout android:id="@+id/catalogContent" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" />
+    </ScrollView>
+    <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/catalogNavigation"
+        android:layout_width="match_parent" android:layout_height="64dp" android:background="@color/white"
+        app:itemIconTint="@color/navigation_tint" app:labelVisibilityMode="unlabeled" app:menu="@menu/main_navigation" />
+</LinearLayout>

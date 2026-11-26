@@ -1,3 +1,4 @@
+// Источники, из которых Gradle загружает плагины.
 pluginManagement {
     repositories {
         maven { url = uri("local-maven") }
@@ -6,6 +7,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+// Источники обычных библиотек AndroidX и запрет репозиториев внутри модулей.
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -14,5 +16,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "DriveNextLab1"
+// Имя проекта и подключённый модуль Android-приложения.
+rootProject.name = "DriveNextMP"
 include(":app")

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Фигура фона для элемента интерфейса. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <!-- Цвет заливки фигуры. -->
+    <solid android:color="@color/purple" />
+</shape>

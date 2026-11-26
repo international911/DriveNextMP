@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent" tools:context=".AuthActivity">
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="20dp">
+            <FrameLayout android:layout_width="match_parent" android:layout_height="56dp">
+                <TextView android:id="@+id/authBack" android:layout_width="48dp" android:layout_height="match_parent"
+                    android:gravity="center_vertical" android:text="‹" android:textColor="@color/text" android:textSize="34sp"
+                    android:clickable="true" android:focusable="true" android:contentDescription="@string/back" />
+                <TextView android:id="@+id/authTitle" android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:layout_marginHorizontal="48dp" android:gravity="center" android:textColor="@color/text"
+                    android:textSize="22sp" android:textStyle="bold" tools:text="Создать аккаунт" />
+            </FrameLayout>
+            <TextView android:id="@+id/authSubtitle" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:gravity="center" android:textColor="@color/field_hint"
+                android:textSize="14sp" tools:text="Шаг 1 из 3" />
+            <LinearLayout android:id="@+id/credentials" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="54dp" android:orientation="vertical">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/email" android:textColor="@color/text" android:textSize="15sp" />
+                <EditText android:id="@+id/authEmail" android:layout_width="match_parent" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/field_background" android:hint="@string/email_hint" android:inputType="textEmailAddress"
+                    android:paddingHorizontal="14dp" android:singleLine="true" android:autofillHints="emailAddress" />
+                <TextView android:id="@+id/passwordLabel" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp" android:text="@string/password" android:textColor="@color/text" android:textSize="15sp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="8dp"
+                    android:background="@drawable/field_background" android:orientation="horizontal">
+                    <EditText android:id="@+id/authPassword" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
+                        android:background="@android:color/transparent" android:hint="@string/password_hint" android:inputType="textPassword"
+                        android:paddingHorizontal="14dp" android:singleLine="true" android:autofillHints="password" />
+                    <ImageButton android:id="@+id/togglePassword" android:layout_width="52dp" android:layout_height="match_parent"
+                        android:background="@android:color/transparent" android:contentDescription="@string/show_password" android:src="@drawable/ic_visibility" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/repeatSection" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:visibility="gone">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp" android:text="@string/password_repeat" android:textColor="@color/text" android:textSize="15sp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="8dp"
+                        android:background="@drawable/field_background" android:orientation="horizontal">
+                        <EditText android:id="@+id/authRepeat" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
+                            android:background="@android:color/transparent" android:hint="@string/password_hint" android:inputType="textPassword"
+                            android:paddingHorizontal="14dp" android:singleLine="true" android:autofillHints="newPassword" />
+                        <ImageButton android:id="@+id/toggleRepeat" android:layout_width="52dp" android:layout_height="match_parent"
+                            android:background="@android:color/transparent" android:contentDescription="@string/show_password" android:src="@drawable/ic_visibility" />
+                    </LinearLayout>
+                    <CheckBox android:id="@+id/authTerms" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="38dp" android:text="@string/agree_terms" android:textColor="@color/text" />
+                </LinearLayout>
+                <TextView android:id="@+id/forgotPassword" android:layout_width="wrap_content" android:layout_height="48dp"
+                    android:layout_gravity="end" android:gravity="center_vertical" android:text="@string/forgot_password"
+                    android:textColor="@color/purple" android:clickable="true" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/personalSection" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="28dp" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/last_name" android:textColor="@color/text" android:textSize="15sp" />
+                <EditText android:id="@+id/authLastName" android:layout_width="match_parent" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/field_background" android:hint="@string/last_name_hint" android:inputType="textPersonName|textCapWords"
+                    android:paddingHorizontal="14dp" android:singleLine="true" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+                    android:text="@string/first_name" android:textColor="@color/text" android:textSize="15sp" />
+                <EditText android:id="@+id/authFirstName" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="8dp"
+                    android:background="@drawable/field_background" android:hint="@string/first_name_hint" android:inputType="textPersonName|textCapWords"
+                    android:paddingHorizontal="14dp" android:singleLine="true" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+                    android:text="@string/middle_name" android:textColor="@color/text" android:textSize="15sp" />
+                <EditText android:id="@+id/authMiddleName" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="8dp"
+                    android:background="@drawable/field_background" android:hint="@string/middle_name_hint" android:inputType="textPersonName|textCapWords"
+                    android:paddingHorizontal="14dp" android:singleLine="true" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+                    android:text="@string/birth_date" android:textColor="@color/text" android:textSize="15sp" />
+                <Button android:id="@+id/birthDateButton" android:layout_width="match_parent" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/outline_button_background" android:text="@string/birth_date_hint"
+                    android:drawableStart="@drawable/ic_calendar" android:drawablePadding="12dp"
+                    android:gravity="center_vertical|start" android:paddingHorizontal="14dp" android:stateListAnimator="@null"
+                    android:textAllCaps="false" android:textColor="@color/field_hint" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+                    android:text="@string/gender" android:textColor="@color/text" />
+                <RadioGroup android:id="@+id/genderGroup" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <RadioButton android:id="@+id/genderMale" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/male" />
+                    <RadioButton android:id="@+id/genderFemale" android:layout_width="wrap_content" android:layout_height="48dp"
+                        android:layout_marginStart="18dp" android:text="@string/female" />
+                </RadioGroup>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/documentsSection" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" android:orientation="vertical" android:visibility="gone">
+                <FrameLayout android:id="@+id/avatarButton" android:layout_width="148dp" android:layout_height="148dp"
+                    android:layout_gravity="center_horizontal" android:clickable="true" android:focusable="true"
+                    android:contentDescription="@string/profile_photo">
+                    <ImageView android:id="@+id/avatarImage" android:layout_width="136dp" android:layout_height="136dp"
+                        android:layout_gravity="top|center_horizontal" android:background="@drawable/avatar_outline"
+                        android:clipToOutline="true" android:contentDescription="@string/profile_photo"
+                        android:padding="12dp" android:scaleType="centerCrop" android:src="@drawable/ic_avatar" />
+                    <TextView android:layout_width="30dp" android:layout_height="30dp" android:layout_gravity="bottom|end"
+                        android:background="@drawable/avatar_add_background" android:gravity="center" android:text="+"
+                        android:textColor="@color/white" android:textSize="23sp" android:importantForAccessibility="no" />
+                </FrameLayout>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp" android:text="@string/profile_photo_hint"
+                    android:textColor="@color/muted" android:textSize="14sp" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+                    android:text="@string/license_number" android:textColor="@color/text" android:textSize="15sp" />
+                <EditText android:id="@+id/licenseNumber" android:layout_width="match_parent" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/field_background" android:hint="@string/license_hint"
+                    android:inputType="number" android:maxLength="10" android:paddingHorizontal="14dp" android:singleLine="true" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+                    android:text="@string/license_issue_date" android:textColor="@color/text" android:textSize="15sp" />
+                <Button android:id="@+id/issueDateButton" android:layout_width="match_parent" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/outline_button_background" android:text="@string/license_issue_date_hint"
+                    android:drawableStart="@drawable/ic_calendar" android:drawablePadding="12dp"
+                    android:gravity="center_vertical|start" android:paddingHorizontal="14dp" android:stateListAnimator="@null"
+                    android:textAllCaps="false" android:textColor="@color/field_hint" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp"
+                    android:text="@string/license_photo_prompt" android:textColor="@color/text" android:textSize="15sp" />
+                <Button android:id="@+id/licensePhotoButton" android:layout_width="wrap_content" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/outline_button_background"
+                    android:drawableStart="@drawable/ic_upload" android:drawablePadding="12dp"
+                    android:paddingHorizontal="14dp" android:stateListAnimator="@null" android:textAllCaps="false"
+                    android:text="@string/upload_photo" android:textColor="@color/field_hint" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp"
+                    android:text="@string/passport_photo_prompt" android:textColor="@color/text" android:textSize="15sp" />
+                <Button android:id="@+id/passportPhotoButton" android:layout_width="wrap_content" android:layout_height="52dp"
+                    android:layout_marginTop="8dp" android:background="@drawable/outline_button_background"
+                    android:drawableStart="@drawable/ic_upload" android:drawablePadding="12dp"
+                    android:paddingHorizontal="14dp" android:stateListAnimator="@null" android:textAllCaps="false"
+                    android:text="@string/upload_photo" android:textColor="@color/field_hint" />
+                <TextView android:id="@+id/photosError" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="@string/photos_required" android:textColor="@color/error"
+                    android:textSize="14sp" android:visibility="gone" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/successSection" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="64dp" android:gravity="center" android:orientation="vertical" android:visibility="gone">
+                <ImageView android:layout_width="100dp" android:layout_height="100dp" android:src="@drawable/ic_success"
+                    android:contentDescription="@string/success_title" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp"
+                    android:gravity="center" android:text="@string/success_title" android:textColor="@color/purple" android:textSize="28sp" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                    android:gravity="center" android:text="@string/success_message" android:textColor="@color/muted" />
+            </LinearLayout>
+            <TextView android:id="@+id/requiredError" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:text="@string/required_fields" android:textColor="@color/error"
+                android:textSize="14sp" android:visibility="gone" />
+            <Space android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+            <Button android:id="@+id/authPrimary" android:layout_width="match_parent" android:layout_height="54dp"
+                android:layout_marginTop="30dp" android:background="@drawable/button_background" android:text="@string/next"
+                android:textAllCaps="false" android:textColor="@color/white" />
+            <Button android:id="@+id/googleButton" android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginTop="12dp" android:background="@drawable/outline_button_background" android:text="@string/google_login"
+                android:textAllCaps="false" android:textColor="@color/purple" />
+            <TextView android:id="@+id/authSwitch" android:layout_width="match_parent" android:layout_height="52dp"
+                android:gravity="center" android:text="@string/register" android:textColor="@color/purple" android:clickable="true" />
+        </LinearLayout>
+    </ScrollView>
+    <FrameLayout android:id="@+id/loadingOverlay" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="#B3FFFFFF" android:clickable="true" android:visibility="gone">
+        <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
+    </FrameLayout>
+</FrameLayout>

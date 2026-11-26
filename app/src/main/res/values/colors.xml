@@ -5,4 +5,10 @@
     <color name="muted">#555555</color>
     <color name="indicator_inactive">#E2E5E9</color>
     <color name="white">#FFFFFF</color>
+    <color name="field_border">#D3DAE4</color>
+    <color name="field_hint">#7B879B</color>
+    <color name="soft_background">#F8F7FA</color>
+    <color name="error">#B3261E</color>
+    <color name="catalog_header">#FAF6FF</color>
+    <color name="divider">#E1E4EA</color>
 </resources>
